@@ -1,0 +1,20 @@
+from pyspark import SparkContext
+
+# create a SparkContext
+sc = SparkContext(appName="WordCount")
+
+# read the text file and create an RDD
+text_rdd = sc.textFile("path/to/text/file")
+
+# split the lines into words, and convert them to lowercase
+words_rdd = text_rdd.flatMap(lambda line: line.lower().split())
+
+# count the occurrences of each word, and create a new RDD with the counts
+word_counts_rdd = words_rdd.map(lambda word: (word, 1)).reduceByKey(lambda a, b: a + b)
+
+# sort the RDD by the count of each word in descending order, and take the top 10 most frequent words
+top10_words = word_counts_rdd.takeOrdered(10, key=lambda x: -x[1])
+
+# print the top 10 words
+for word, count in top10_words:
+print("{}: {}".format(word, count))
